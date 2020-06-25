@@ -1,11 +1,11 @@
 import React, { useState, useReducer } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Stepper from '@material-ui/core/Stepper';
-import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
+import Step from '@material-ui/core/Step';
 import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
 
 import BasicForm from './components/BasicForm';
 import ContactsForm from './components/ContactsForm';
@@ -32,9 +32,9 @@ const useStyles = makeStyles(theme => ({
 	},
 	content: {
 		width: '100%',
+		marginBottom: 20,
 	},
 	button: {
-		marginTop: 20,
 		marginRight: theme.spacing(1),
 	},
 }));
@@ -43,7 +43,7 @@ const getSteps = (): string[] => {
 	return ['Basic', 'Contacts', 'Avatar', 'Finish'];
 };
 
-const getStepContent = (step: number): any => {
+const getStepContent = (step: number): JSX.Element => {
 	switch (step) {
 		case 0:
 			return <BasicForm />;
@@ -54,28 +54,28 @@ const getStepContent = (step: number): any => {
 		case 3:
 			return <Finish />;
 		default:
-			return 'Unknown step';
+			return <Finish />;
 	}
 };
 
 const StepperForm: React.FC = () => {
 	const classes = useStyles();
 	const [activeStep, setActiveStep] = useState(0);
-	const [skipped, setSkipped] = useState(new Set());
+	const [skipped, setSkipped] = useState(new Set<number>());
 
 	const [state, dispatch] = useReducer(reducer, initialState);
 
 	const steps = getSteps();
 
-	const isStepOptional = (step: number): boolean => {
+	const isStepOptional = (step: number) => {
 		return step === 2;
 	};
 
-	const isStepSkipped = (step: number): boolean => {
+	const isStepSkipped = (step: number) => {
 		return skipped.has(step);
 	};
 
-	const handleNext = (): void => {
+	const handleNext = () => {
 		let newSkipped = skipped;
 		if (isStepSkipped(activeStep)) {
 			newSkipped = new Set(newSkipped.values());
@@ -91,15 +91,15 @@ const StepperForm: React.FC = () => {
 	};
 
 	const handleSkip = () => {
-		dispatch({
-			type: commonTypes.SKIP_AVATAR,
-		});
-
 		if (!isStepOptional(activeStep)) {
 			// You probably want to guard against something like this,
 			// it should never occur unless someone's actively trying to break something.
 			throw new Error("You can't skip a step that isn't optional.");
 		}
+
+		dispatch({
+			type: commonTypes.SKIP_AVATAR,
+		});
 
 		setActiveStep(prevActiveStep => prevActiveStep + 1);
 		setSkipped(prevSkipped => {
@@ -121,16 +121,14 @@ const StepperForm: React.FC = () => {
 		<Paper className={classes.root}>
 			<Stepper activeStep={activeStep}>
 				{steps.map((label, index) => {
-					const stepProps: any = {};
-					const labelProps: any = {};
-
+					const stepProps: { completed?: boolean } = {};
+					const labelProps: { optional?: React.ReactNode } = {};
 					if (isStepOptional(index)) {
 						labelProps.optional = <Typography variant='caption'>Optional</Typography>;
 					}
 					if (isStepSkipped(index)) {
 						stepProps.completed = false;
 					}
-
 					return (
 						<Step key={label} {...stepProps}>
 							<StepLabel {...labelProps}>{label}</StepLabel>
@@ -149,17 +147,26 @@ const StepperForm: React.FC = () => {
 						Back
 					</Button>
 
-					{activeStep === 3 ? (
+					{activeStep === steps.length - 1 ? (
 						<Button
-							onClick={handleReset}
-							variant='contained'
 							color='primary'
+							variant='contained'
+							onClick={handleReset}
 							className={classes.button}
 						>
 							Reset
 						</Button>
 					) : (
 						<>
+							<Button
+								variant='contained'
+								color='primary'
+								onClick={handleNext}
+								className={classes.button}
+							>
+								Next
+							</Button>
+
 							{isStepOptional(activeStep) && (
 								<Button
 									variant='contained'
@@ -170,15 +177,6 @@ const StepperForm: React.FC = () => {
 									Skip
 								</Button>
 							)}
-
-							<Button
-								variant='contained'
-								color='primary'
-								onClick={handleNext}
-								className={classes.button}
-							>
-								{activeStep === steps.length - 1 ? 'Finish' : 'Next'}
-							</Button>
 						</>
 					)}
 				</div>

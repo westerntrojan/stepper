@@ -68,6 +68,7 @@ const ContactsForm: React.FC = () => {
 				value={state.email}
 				onChange={_handleChangeEmail}
 				fullWidth
+				autoFocus
 			/>
 			<TextField
 				label='Mobile'

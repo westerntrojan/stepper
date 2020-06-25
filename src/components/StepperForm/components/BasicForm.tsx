@@ -78,6 +78,7 @@ const BasicForm: React.FC = () => {
 				value={state.firstName}
 				onChange={_handleChangeFirstName}
 				fullWidth
+				autoFocus
 			/>
 			<TextFiled
 				label='Last name'

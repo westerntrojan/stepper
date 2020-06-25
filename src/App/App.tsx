@@ -25,9 +25,8 @@ const App: React.FC = () => {
 				maxSnack={3}
 				anchorOrigin={{
 					vertical: 'bottom',
-					horizontal: 'center',
+					horizontal: 'right',
 				}}
-				dense
 			>
 				<div id='root'>
 					<main className='content'>

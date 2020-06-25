@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
@@ -38,12 +38,13 @@ const checkImage = (file: File): { success: boolean; message?: string } => {
 const AvatarForm: React.FC = () => {
 	const classes = useStyles();
 
+	const inputRef = useRef<HTMLInputElement | null>(null);
 	const { state, dispatch } = useContext(Context);
 
 	const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
 	const _handleChangeImage = (e: React.ChangeEvent<HTMLInputElement>): void => {
-		if (e.target.files) {
+		if (e.target.files && e.target.files.length) {
 			const file = e.target.files[0];
 
 			const checkImageResult = checkImage(file);
@@ -62,7 +63,9 @@ const AvatarForm: React.FC = () => {
 
 				reader.readAsDataURL(file);
 			} else {
-				console.log(checkImageResult.message);
+				if (inputRef.current) {
+					inputRef.current.value = '';
+				}
 
 				enqueueSnackbar(checkImageResult.message, {
 					variant: 'error',
@@ -81,7 +84,12 @@ const AvatarForm: React.FC = () => {
 			<Avatar variant='square' className={classes.avatar} src={state.avatar} />
 
 			<Button variant='contained' color='primary' component='label' fullWidth>
-				<input type='file' style={{ display: 'none' }} onChange={_handleChangeImage} />
+				<input
+					type='file'
+					style={{ display: 'none' }}
+					onChange={_handleChangeImage}
+					ref={inputRef}
+				/>
 				Upload
 			</Button>
 		</div>
